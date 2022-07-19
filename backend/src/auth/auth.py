@@ -4,8 +4,6 @@ from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
-import rsa
-
 
 AUTH0_DOMAIN = 'edodev.us.auth0.com'
 ALGORITHMS = ['RS256']
@@ -34,7 +32,7 @@ class AuthError(Exception):
 '''
 def get_token_auth_header():
     authentication_header = request.headers.get('Authorization', None)
-
+    print(authentication_header)
     if not authentication_header:
         raise AuthError({
             'code': 'authorization_header_is_missing',
@@ -120,13 +118,13 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e'],
             }
-    
+            
     if rsa_key:
         try:
             payload = jwt.decode(
                 token,
                 rsa_key,
-                algorithm=ALGORITHMS,
+                algorithms=ALGORITHMS,
                 audience=API_AUDIENCE,
                 issuer='https://{}/'.format(AUTH0_DOMAIN)
             )
@@ -172,7 +170,8 @@ def requires_auth(permission=''):
             jwt = get_token_auth_header()
             try:
                 payload = verify_decode_jwt(jwt)
-            except:
+            except Exception as e:
+                print(e)
                 abort(401)
 
             # Check to see if permission exists in jwt

@@ -54,7 +54,8 @@ def retrieve_drinks():
 '''
 
 @app.route('/drinks-detail')
-def retrieve_drinks_detail():
+@requires_auth('get:drinks-detail')
+def retrieve_drinks_detail(payload):
     query_drinks = Drink.query.all()
 
     # If drinks has no items return error 404
@@ -78,7 +79,8 @@ def retrieve_drinks_detail():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks', methods=['POST'])
-def create_drink():
+@requires_auth('post:drinks')
+def create_drink(payload):
     body = request.get_json()
     title = body.get('title', None)
     recipe = body.get('recipe', None)
@@ -114,7 +116,8 @@ def create_drink():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<id>', methods=['PATCH'])
-def update_drink(id):
+@requires_auth('patch:drinks')
+def update_drink(payload, id):
     drink = Drink.query.filter(Drink.id == id).one_or_none()
     body = request.get_json()
 
@@ -154,7 +157,8 @@ def update_drink(id):
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<id>', methods=['DELETE'])
-def delete_drink(id):
+@requires_auth('delete:drinks')
+def delete_drink(payload, id):
     try:
         drink = Drink.query.filter(Drink.id == id).one_or_none()
 
