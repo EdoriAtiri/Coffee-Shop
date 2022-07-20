@@ -9,18 +9,20 @@ AUTH0_DOMAIN = 'edodev.us.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'coffee'
 
-## AuthError Exception
+# AuthError Exception
 '''
 AuthError Exception
 A standardized way to communicate auth failure modes
 '''
+
+
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-## Auth Header
+# Auth Header
 
 '''
 @TODO implement get_token_auth_header() method
@@ -30,17 +32,20 @@ class AuthError(Exception):
         it should raise an AuthError if the header is malformed
     return the token part of the header
 '''
+
+
 def get_token_auth_header():
     authentication_header = request.headers.get('Authorization', None)
-    print(authentication_header)
     if not authentication_header:
         raise AuthError({
             'code': 'authorization_header_is_missing',
             'description': 'Authorization header is required'
         }, 401)
 
+    # Split authentication into an array consisting of the bearer and the token
     parts = authentication_header.split()
 
+    # return errors if below statements are true
     if parts[0].lower() != 'bearer':
         raise AuthError({
             'code': 'invalid_header',
@@ -58,9 +63,11 @@ def get_token_auth_header():
             'code': 'invalid_header',
             'description': 'Authorization header must be bearer token.',
         }, 401)
-    
+
     token = parts[1]
     return token
+
+
 '''
 @TODO implement check_permissions(permission, payload) method
     @INPUTS
@@ -72,10 +79,14 @@ def get_token_auth_header():
     it should raise an AuthError if the requested permission string is not in the payload permissions array
     return true otherwise
 '''
+
+
 def check_permissions(permission, payload):
+    # check for permissions key in payload, if not abort
     if 'permissions' not in payload:
         abort(400)
-    
+
+    # if permission is a property of permissions object in payload return true else return error
     if permission not in payload['permissions']:
         raise AuthError({
             'code': 'unauthorized',
@@ -83,6 +94,7 @@ def check_permissions(permission, payload):
         }, 403)
 
     return True
+
 
 '''
 @TODO implement verify_decode_jwt(token) method
@@ -97,6 +109,8 @@ def check_permissions(permission, payload):
 
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
+
+
 def verify_decode_jwt(token):
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
@@ -108,7 +122,7 @@ def verify_decode_jwt(token):
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
-    
+
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
@@ -118,7 +132,7 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e'],
             }
-            
+
     if rsa_key:
         try:
             payload = jwt.decode(
@@ -141,7 +155,7 @@ def verify_decode_jwt(token):
                 'code': 'invalid_claims',
                 'description': 'Incorrect claims. Please, check the audience and issuer.'
             }, 401)
-        
+
         except Exception:
             raise AuthError({
                 'code': 'invalid_header',
@@ -153,6 +167,7 @@ def verify_decode_jwt(token):
         'description': 'Unable to find the appropriate key.'
     })
 
+
 '''
 @TODO implement @requires_auth(permission) decorator method
     @INPUTS
@@ -163,12 +178,17 @@ def verify_decode_jwt(token):
     it should use the check_permissions method validate claims and check the requested permission
     return the decorator which passes the decoded payload to the decorated method
 '''
+
+
 def requires_auth(permission=''):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            # get token
             jwt = get_token_auth_header()
+
             try:
+                # Verify and Decode token with previously created method
                 payload = verify_decode_jwt(jwt)
             except Exception as e:
                 print(e)
