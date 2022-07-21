@@ -1,8 +1,0 @@
-[33mdab9359[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m fix error reverting
-[33m87464ef[m add dotenv
-[33mbc201f7[m add dotenv
-[33m95a14b1[m[33m ([m[1;31morigin/main[m[33m)[m added relevant comments and reformat py code with autopep8
-[33m52ca56e[m setup
-[33m1770b8c[m fixed issue with 401:invalid code in auth.py
-[33m8627221[m added routes for backend and errorhandlers
-[33m7f6d02f[m initial setup
