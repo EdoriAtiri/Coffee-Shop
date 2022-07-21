@@ -192,7 +192,7 @@ def requires_auth(permission=''):
                 payload = verify_decode_jwt(jwt)
             except Exception as e:
                 print(e)
-                abort(401)
+                abort(403)
 
             # Check to see if permission exists in jwt
             check_permissions(permission, payload)

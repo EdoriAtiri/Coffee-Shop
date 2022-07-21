@@ -219,7 +219,7 @@ def unprocessable(error):
     error handler should conform to general task above
 '''
 
-
+# common error handlers
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({
